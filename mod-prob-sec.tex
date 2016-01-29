@@ -60,7 +60,7 @@ lenguaje humano, en las que las secuencias son \emph{secuencias de
 
 Podemos distinguir dos grandes grupos de modelos:
 \begin{itemize}
-\item modelos que \emph{puntúan} o \emph{ordenan} hipótesis posibles (por ejemplo, traducciones alternativas de una oración):
+\item modelos que \emph{puntúan} o \emph{ordenan} hipótesis posibles (por ejemplo, traducciones alternativas de una oración en traducción automática estadística):
   \begin{itemize}
   \item En inglés, ¿\emph{tomar una decisión} se dice \emph{take a decision} o \emph{make a decision}?
   \end{itemize}
@@ -71,87 +71,157 @@ Pronombre	&¿verbo o sustantivo? &determinante &¿verbo o substantivo?\\
    \end{tabular}
 \end{itemize}
 
+
 \end{frame}
+\begin{frame}
+  \frametitle{Generalidades}
+  \begin{itemize}
+  \item Los modelos probabilísticos de secuencias asignan probabilidades a las secuencias. Por ejemplo:
+    \begin{itemize}
+    \item Imaginemos un  vocabulario \(V\) tiene 2 palabras \(V=\{a,b\}\).
+    \item Llamaremos
+      \(V^\star=\{\epsilon,a,b,aa,ab,ba,bb,aaa,aab,\ldots\}\)
+      al conjunto (infinito) de todas las secuencias finitas que se
+      pueden formar con palabras de \(V\)\footnote{El conjunto tiene el mismo tamaño que el de los números naturales}  \(\epsilon\) es la secuencia de cero palabras).
+    \item Así, por ejemplo, la probabilidad de \emph{aba}, \(p(aba)\)
+      podría ser 0,00036.
+    \item La suma de las probabilidades de todas las secuencias debe ser 1:
+\[p(\epsilon)+p(a)+p(b)+p(aa)+p(ab)+p(ba)+\ldots = 1\]
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Dos tipos de modelos}
+
+En este bloque estudiaremos dos tipos de modelos:
+  \begin{itemize}
+  \item  Los modelos de \(n\)-gramas, y
+  \item los modelos ocultos de Markov.
+  \end{itemize}
+[Más detalles sobre estos dos tipos de modelos se pueden encontrar en
+las secciones correspondientes del documento auxiliar \emph{Introducción a los modelos probabilísticos de
+  secuencias}, \url{mod-prob-sec-n1.pdf}]
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Aproximación factible de \(p(\cdot)\)/1}
+  \begin{itemize}
+  \item Cómo hacemos que una funcion como \(p(\cdot)\), que toma valores de un conjunto infinito, sea computacionalmente factible?
+  \item No podemos mantener una tabla infinita!
+  \end{itemize}
+
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Aproximación factible de \(p(\cdot)\)/2}
+  Descomposición en producto:
+  
+
+  \begin{itemize}
+  \item Las probabilidades de secuencias se pueden rescribir como productos de probabilidades condicionales:
+\[p(abaab)=p(a)\times p(b|a) \times p(a|ab) \times p(a|aba) \times p(b|abaa) \times p(\$|abaab)\]
+donde \(\$\) es un indicador de final de secuencia.
+  \item Sin embargo, el modelo sigue sin ser factible. El segundo argumento de cada factor \(p(\cdot|\cdot)\) toma valores de un conjunto infinito.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Aproximación de memoria finita: modelos de \(n\)-gramas /2}
+  \begin{itemize}
+  \item El séptimo término de \(p(abbabbabba)\) sería
+\[p(b|abbabba)\]. 
+  \item Podemos aproximarlo \emph{olvidando} palabras antiguas y haciendo que sólo dependa, por ejemplo de las 2 últimas:
+  \[p(b|abbabba)\simeq p(b|ba)\]
+  Ahora sólo hay tres palabras involucradas (la actual y dos de historia).
+  \item Esto sería un modelo de \emph{trigramas} (3-gramas):
+\[p(abaab) \simeq p(a)\times p(b|a) \times p(a|ab) \times p(a|ba) \times p(b|aa) \times p(\$|ab)\]
+
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Aproximación de memoria finita: modelos de \(n\)-gramas /2}
+  \begin{itemize}
+  \item Los modelos de \(n\)-gramas son factibles, pero aún son muy grandes:
+    \begin{itemize}
+    \item Imaginemos un vocabulario \(V\) de 10.000 palabras: \(|V|=10000\)
+    \item El modelo debería almacenar los \(|V|^3=10^{12}\) trigramas!
+    \item En la práctica sólo se almacenan los trigramas vistos en un corpus de entrenamiento (véase más abajo).
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Aproximación de memoria finita: modelos de \(n\)-gramas /3} 
+\begin{itemize}
+\item Por ejemplo:
+\[
+\begin{array}{rcl}
+ p(\mbox{I saw the book at home})  &=& p(\mbox{I})\times p(\mbox{saw}|\mbox{I}) \times \\
+ && \times p(\mbox{the}|\mbox{I saw}) \times  p(\mbox{book}|\mbox{saw the}) \times 
+\\
+ && \times p(\mbox{at}|\mbox{the book}) \times p(\mbox{at}|\mbox{the book}) \times \\
+ && \times  p(\mbox{home}|\mbox{book at}) \times p(\$|\mbox{at home}).
+\end{array}
+\]
+\item Un cálculo similar de \(p(\mbox{saw I at home the book})\) daría una probabilidad más baja, indicando que esta oración es menos gramatical que la anterior.
+\item Otro ejemplo: en un sistema de reconocimiento automático del habla, el modelo asignaría una probabilidad más alta a \emph{sex and violence on TV} que a \emph{sax and violins on TV} (que suena extremadamente parecida).
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Aproximación de memoria finita: modelos de \(n\)-gramas /4} 
+De dónde se sacan estas probabilidades?
+\begin{itemize}
+\item Se aproximan por las frecuencias relativas observadas en el corpus (esto se llama \emph{verosimilitud máxima}.
+\item Esto exige \emph{contar} los \(n\)-gramas.
+\item Por ejemplo, 
+\[
+p(\mbox{book}|\mbox{saw the})=\frac{n(\mbox{saw the book})}{n(\mbox{saw the book}) +n(\mbox{saw the house}) + \ldots }
+\]
+(en el denominador estarían todos los trigramas \emph{saw the \(X\)}, donde \(X\) es cualquier palabra del vocabulario).
+
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Aproximación de memoria finita: modelos de \(n\)-gramas /5} 
+El problema de los eventos no vistos:
+\begin{itemize}
+\item Si la probabilidad de una oración se calcula a partir de frecuencias relativas\ldots
+\item \ldots puede ocurrir que contenga un trigrama no visto.
+\item Un trigrama no visto, por ejemplo \emph{book at home} tiene \(n(\mbox{book at home})=0\).
+\item Esto significa que \(p(\mbox{home}|\mbox{book at})\) es cero, y por tanto, toda la secuencia de productos de la oración \emph{I saw the book at home} es nula.
+\item Se debe buscar alguna manera de asignar una probabilidad no nula a los trigramas no vistos: esto se denomina \emph{suavizado}.
+  \begin{itemize}
+  \item Se trata de quitar un poco de probabilidad a los trigramas vistos y repartirlo entre los no vistos.
+  \item El documento \url{mod-prob-sec-n2.pdf} describe en detalle dos técnicas de suavizado.
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
 
 \end{document}
 
 
 
-Applications of statistical models of sequences (sequences in machine translation are usually sequences of words or sequences of word properties or annotated words)
-Models that score or rank possible hypotheses (for instance, alternative translations of a sentence) 
-Is it “make a decision” or “take a decision”?
-models that explain or classify the elements of a sequence in terms of another sequence (for instance, part-of-speech taggers)
-I 	saw 	the 	book
-PRN	V/N	Det	N/V
-
-The importance of statistical models of sequences has increased in the last two decades because of the rise of machine statistical translation (which will be explained by Professors Felipe Sánchez and Juan Antonio Pérez-Ortiz in the remaining sessions of the course).
-
-[Note: statistical machine translation models of structures more complex than sequences are also used; for instance, trees (in association with probabilistic context-free grammars), but will not be discussed in this course]
-
-Explanation of the technical notes "Introduction to statistical models of sequences" (separate PDF file)
-n-gram models (or  k-grams models in the technical notes)
-stochastic deterministic finite automata (see [1] for an application to predictive typing on mobile)
-hidden Markov models
 
 
-Explanations related to the technical note
-[which could eventually be added to the technical note]
 
-Statistical models assign probabilities to sequences. For instance, if V={a,b}, V*={ε,a,b,aa,ab,ba,bb,aaa,aab, … }, one could have p(aba) = 0,00036.
-Note that V* is an infinite set. There are as many elements in V* as in the set of natural numbers N.
 
-The probabilities of all possible sequences should add to 1. In the example: p(ε)+p(a)+p(b)+p(ab)+ … = 1
 
-Probabilistic models may be interpreted in two ways:
-as probability computers (given a sequence, they produce a probability)
-as generators (a source that generates sequences according to some probability distribution)
 
-How do we make computationally feasible a function like p() which can take values from an infinite set of possible values? We cannot keep an infinite table.
 
-Probabilities of sequences can be descomposed as a product of conditional probabilities:
 
-p(aba) = p(a|ε) x p(b|a) x p(a|ab) x p($|aba)
-
-These are still unfeasible. The second argument of each factor p(·|·) can take values from an infinite set.
-
-[Note about “infinite” in engineering. Where math or theory says “infinite”, an engineer says: “we don’t know how much in advance” or “I don’t know the limit”.]
-
-There are 3 ways to make the computaiton of p(·) feasible:
-n-gram models
-stochastic deterministic finite automata
-hidden Markov models
-
-N-gram (or k-gram) models:
-
-In the product decomposition, the seventh term would be p(O7|OtO2O3O4O5O6). We can approximate it by forgetting old events and taking p(O7|O5O6) instead. We have 3 symbols involved (a history of 2 and the current one). This would be a 3-gram model.
-
-N-gram models are feasible, but still big. Consider k = 3 → Trigram;  |V| = 10,000. This means that we have  |V|k = 10¹² probabilities p(·|· ·).
-
-Example of use of a trigram model to compute the probability of a sentence:
-
-p(I saw the book at home) = ^p (I|ε) x ^p (saw|I)  x ^p(the|I saw) x ^p (book|saw the) x ^p (at|the book) x ^p (home|book at) x ^p ($|at home)
-
-A similar calculation of p(saw I at home the book) would show that this sentence is less fluent than the one above.
-
-Another example: in a speech recognition system, a probability model would assign a higher probability to the interpretation “sex and violence on TV” than to “sax and violins on TV”.
-	 
-An example of how these probabilities can be computed by counting occurrences of trigrams in a corpus:
-
-p(book|saw the) = n(saw the book) / [ n(saw the book) + n(saw the house) + … ]
-
-Stochastic finite automata:
-
-Stochastic finite automata, instead of forgetting past details of the history, actually classify (partition) all possible histories in a finite set of classes, which are called states.
-
-One advantage is that the calculation of F(O1... Ot-1), eqns. (7)–(10) in the notes proceeds in linear time, almost regardless of the size of the automaton (the time spent at each state to search the next state may slightly vary with size).
-	 	
-A stochastic deterministic finite automaton has |S| x |S| x |V| entries in its table.
-
-[...]
-
-[a picture was taken of an example here, not here]
-p(aabb) = 0,8 x 0,8 x 0,1 x 0,1 x 0,1 = 0,00064
-
+Text to translate and add:
 
 
 Hidden Markov models (HMM)
