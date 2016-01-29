@@ -1,0 +1,260 @@
+\input{header.tex}
+
+\begin{document}
+
+%-----------------------------------------------------------------------
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%-----------------------------------------------------------------------
+%--------------------------------------------------------------------
+\begin{frame}
+  \frametitle{Índice}
+  \tableofcontents 
+\end{frame}
+
+%--------------------------------------------------------------------
+\AtBeginSection[]{
+  \begin{frame}
+    \frametitle{Índice}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+  
+\section{Introducción}
+\begin{frame} 
+\frametitle{Introducción}
+
+\begin{block}{Objetivo}
+  Aprender conceptos básicos sobre los modelos probabilísticos de secuencias.
+\end{block}
+
+\begin{itemize}
+\item Algunas partes se amplían en materiales disponibles en este mismo repositorio, los cuales se citan en la transparencia correspondiente.
+\item \textbf{Importante:} Este bloque asume que el alumnado controla conceptos básicos de probabilidad. Si crees que debes aprender (o volver a aprender) estos conceptos, hazlo por favor antes de abordar este bloque. Un buen recurso son las secciones §1.1, §1.2.1–§1.2.5 de la guía \emph{The Linguist's Guide to Statistics} de Birgitte Krenn y Christer Samuelson (\url{http://nlp.stanford.edu/fsnlp/dontpanic.pdf})
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Aplicaciones de los modelos probabilisticos de secuencias/1}
+
+Los modelos probabilísticos de secuencias tienen aplicaciones en muchos ámbitos de la informática.
+
+Pero muy particularmente en las aplicaciones que tratan con el
+lenguaje humano, en las que las secuencias son \emph{secuencias de
+  palabras} o de elementos relacionados con ellas:
+\begin{itemize}
+\item En \emph{traducción automática estadística} los modelos se usan para decidir entre varias hipótesis de traducción.
+\item En \emph{reconocimiento automático del habla} los modelos se usan para decidir entre varias interpretaciones de una alocución.
+\item Cuando se hace el \emph{análisis morfológico} de las palabras de
+  un texto, algunas tienen más de un posible análisis; los modelos se
+  usan para elegir el análisis más verosímil.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Aplicaciones de los modelos probabilisticos de secuencias/2}
+
+Podemos distinguir dos grandes grupos de modelos:
+\begin{itemize}
+\item modelos que \emph{puntúan} o \emph{ordenan} hipótesis posibles (por ejemplo, traducciones alternativas de una oración):
+  \begin{itemize}
+  \item En inglés, ¿\emph{tomar una decisión} se dice \emph{take a decision} o \emph{make a decision}?
+  \end{itemize}
+\item modelos que \emph{explican} o \emph{clasifican} los elementos de una secuencia en términos de otra secuencia (por ejemplo, desambiguadores categoriales o \emph{part-of-speech taggers}):
+  \begin{tabular}{p{2cm}p{2cm}p{2cm}p{2cm}}
+\emph{I} 	&\emph{saw} 	&\emph{the} 	&\emph{book}\\
+Pronombre	&¿verbo o sustantivo? &determinante &¿verbo o substantivo?\\
+   \end{tabular}
+\end{itemize}
+
+\end{frame}
+
+\end{document}
+
+
+
+Applications of statistical models of sequences (sequences in machine translation are usually sequences of words or sequences of word properties or annotated words)
+Models that score or rank possible hypotheses (for instance, alternative translations of a sentence) 
+Is it “make a decision” or “take a decision”?
+models that explain or classify the elements of a sequence in terms of another sequence (for instance, part-of-speech taggers)
+I 	saw 	the 	book
+PRN	V/N	Det	N/V
+
+The importance of statistical models of sequences has increased in the last two decades because of the rise of machine statistical translation (which will be explained by Professors Felipe Sánchez and Juan Antonio Pérez-Ortiz in the remaining sessions of the course).
+
+[Note: statistical machine translation models of structures more complex than sequences are also used; for instance, trees (in association with probabilistic context-free grammars), but will not be discussed in this course]
+
+Explanation of the technical notes "Introduction to statistical models of sequences" (separate PDF file)
+n-gram models (or  k-grams models in the technical notes)
+stochastic deterministic finite automata (see [1] for an application to predictive typing on mobile)
+hidden Markov models
+
+
+Explanations related to the technical note
+[which could eventually be added to the technical note]
+
+Statistical models assign probabilities to sequences. For instance, if V={a,b}, V*={ε,a,b,aa,ab,ba,bb,aaa,aab, … }, one could have p(aba) = 0,00036.
+Note that V* is an infinite set. There are as many elements in V* as in the set of natural numbers N.
+
+The probabilities of all possible sequences should add to 1. In the example: p(ε)+p(a)+p(b)+p(ab)+ … = 1
+
+Probabilistic models may be interpreted in two ways:
+as probability computers (given a sequence, they produce a probability)
+as generators (a source that generates sequences according to some probability distribution)
+
+How do we make computationally feasible a function like p() which can take values from an infinite set of possible values? We cannot keep an infinite table.
+
+Probabilities of sequences can be descomposed as a product of conditional probabilities:
+
+p(aba) = p(a|ε) x p(b|a) x p(a|ab) x p($|aba)
+
+These are still unfeasible. The second argument of each factor p(·|·) can take values from an infinite set.
+
+[Note about “infinite” in engineering. Where math or theory says “infinite”, an engineer says: “we don’t know how much in advance” or “I don’t know the limit”.]
+
+There are 3 ways to make the computaiton of p(·) feasible:
+n-gram models
+stochastic deterministic finite automata
+hidden Markov models
+
+N-gram (or k-gram) models:
+
+In the product decomposition, the seventh term would be p(O7|OtO2O3O4O5O6). We can approximate it by forgetting old events and taking p(O7|O5O6) instead. We have 3 symbols involved (a history of 2 and the current one). This would be a 3-gram model.
+
+N-gram models are feasible, but still big. Consider k = 3 → Trigram;  |V| = 10,000. This means that we have  |V|k = 10¹² probabilities p(·|· ·).
+
+Example of use of a trigram model to compute the probability of a sentence:
+
+p(I saw the book at home) = ^p (I|ε) x ^p (saw|I)  x ^p(the|I saw) x ^p (book|saw the) x ^p (at|the book) x ^p (home|book at) x ^p ($|at home)
+
+A similar calculation of p(saw I at home the book) would show that this sentence is less fluent than the one above.
+
+Another example: in a speech recognition system, a probability model would assign a higher probability to the interpretation “sex and violence on TV” than to “sax and violins on TV”.
+	 
+An example of how these probabilities can be computed by counting occurrences of trigrams in a corpus:
+
+p(book|saw the) = n(saw the book) / [ n(saw the book) + n(saw the house) + … ]
+
+Stochastic finite automata:
+
+Stochastic finite automata, instead of forgetting past details of the history, actually classify (partition) all possible histories in a finite set of classes, which are called states.
+
+One advantage is that the calculation of F(O1... Ot-1), eqns. (7)–(10) in the notes proceeds in linear time, almost regardless of the size of the automaton (the time spent at each state to search the next state may slightly vary with size).
+	 	
+A stochastic deterministic finite automaton has |S| x |S| x |V| entries in its table.
+
+[...]
+
+[a picture was taken of an example here, not here]
+p(aabb) = 0,8 x 0,8 x 0,1 x 0,1 x 0,1 = 0,00064
+
+
+
+Hidden Markov models (HMM)
+
+[...]
+
+Hidden Markov models for part-of-speech tagging
+
+The part-of-speech tagging (also “homograph-resolution”) problem: assign a category to each homograph in a sentence :
+
+I {PRN}
+saw {V,N}
+the {DET}
+book {V,N}
+at {PRP}
+home {N, ADV}
+
+Of the 8 possible part-of-speech sequences:
+
+PRN V DET V PRP N
+PRN N DET V PRP N
+PRN V DET N PRP N
+PRN V DET V PRP N
+PRN V DET V PRP ADV 
+PRN N DET V PRP ADV
+PRN V DET N PRP ADV
+PRN V DET V PRP ADV
+
+The one in bold should be the winner.
+
+Sometimes the tags could be finer or coarser. For instance “training” could be just VBG (verb in “-ing”) or be classified as a gerund (“I was training” VB.GER), a present participle (“The training students”, VB.PAP) or a verbal noun (“The training was hard”, VB.N).
+
+On the three ways of training a HMM for part-of-speech tagging:
+
+Counting and smoothing on a tagged (disambiguated) corpus (SUPERVISED) GENERAL PURPOSE
+Expectattion maximization (Baum-Welch alg.) on an untagged (ambiguous) corpus (UNSUPERVISED) GENERAL PURPOSEa
+Using info from the target language (train the tagger “in place”)(UNSUPERVISED) (SPECIFIC PURPOSE=MT)
+Blackboard picture:
+
+
+Observables are word classes. An example:
+
+I book the room
+{PRN} {VB,NN} “the” {NN}
+
+The problem is: how do we get the best tag sequence γ*[1] γ*[2] γ*[3] γ*[4]
+
+Word classes Σ = { {PRN}, {VB, NN}, “the”, {NN}, ...}
+Tags: Γ = { PRN, VB, “the” ...}
+
+Note that Σ is the capital letter of σ and Γ is capital letter of γ (engineers should know all greek letters as they are widely used!).
+
+Notation: Power set: P(A) = 2A  is the set of all subsets of A. For instance, If A={a,b,c}. P(A) = 2A ={0,{a},{b},{c},{a,b},{a,c},{b,c},{a,b,c}}
+
+Bayes rule: p(A|B) = p(B)p(A)/p(B).
+
+One of the main ideas of HMM applied to PoS is to separate the lexical and the syntactic modelling:	
+	 	
+p(γ[1]γ[2]...γ[L]|σ[1]σ[2]...σ[L])	x	p(γ[1]γ[2]... γ[L])
+{		LEXCAL	 }		{ SYNTACTIC }
+
+
+
+
+Both n-gram models and hidden Markov models have been widely used in another human language  application, namely, automated speech recognition. Some of the pioneers of statistical machine translation (such as Hermann Ney, and Frederik Jelinek) come from that area.
+n-gram models and their estimation from a corpus
+Smoothing to avoid the problem of zero probabilities when the n-gram model is used to calculate the probability of a new sequence: Blackboard explanation following the technical notes on “smoothing” delivered (separate PDF file), including the Brants and Samuelsson discount
+
+Notes to support the explanation of smoothing: 
+	 	 	
+Smoothing uses clever approximations to avoid zeroes in probability expressions due to unseen events. It can be said to be “an art”, as there are many such approximations.
+
+On the division of the corpus for deleted interpolation in three parts:
+kept or training, where one counts 	C() and  f3,f2,f1
+held-out, tuning, or development corpus, where one determines λ1 λ2 λ3
+test corpus
+
+
+Application of hidden Markov models for lexical categorical disambiguation (or part-of-speech tagging) / part 1
+
+First approach to the problem (first slides in “Part-of-speech tagging using hidden Markov models” handout). Learning from a labeled corpus (supervised learning).
+
+Definitions and fundamentals before explaining:
+Surface form (SF): the form of the word as is found in the text (sang)
+Lexical Form (LF): analysis of the word 
+lemma (or dictionary form: sing), 
+lexical category or part of speech (verb), and 
+inflection indicators (past tense)
+Homography: when a SF corresponds more than one LF: e.g.
+work → work.vblex.pres.not3rd
+work → work.vblex.inf
+work → work.n.sg 
+properly resolving the homography is critical in machine translation:
+I work → Je travaille
+I came to work → Je suis venu pour travailler
+This is hard work →C’est un travail difficile.
+Homography should not be confused with polysemy (a property of the word’s lemma, which can have more than one interpretation: the property is shared by all inflected forms)
+To solve categorial lexical homography, one can use “coarse” tags such as as noun (n), or categories or “fine” categories such as “plural noun”. In some languages thee may even be intermediate categories. One usually tries to make those distinctions that are relevant to the application.
+Use of ambiguity classes as observables. Ambiguous words can be grouped into  classes, which are essentially sets of tags, to reduce the number of model parameters. For example, the words work, place, book are all in the ambiguity class {vblex.pres.not3rd, vblex.inf, n.sg} and can be treated jointly.
+
+Second approach to the problem (Last slides in “Part-of-speech tagging using hidden Markov models” handout): unsupervised learning from an untagged corpus. Further reading: article of Cutting et al. (1992) [2], which also explains the Baum-Welch algorithm [students read the article and try to understand as much as possible, to clear later their doubts with the instructor]
+
+
+\end{document}
+
+
