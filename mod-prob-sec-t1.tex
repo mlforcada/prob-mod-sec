@@ -1,0 +1,454 @@
+\documentclass{beamer}
+%\documentclass[handout]{beamer}
+ \mode<presentation>{ \usetheme{Warsaw}  \setbeamercovered{transparent}
+   %\usecolortheme{albatross} % for inverted color
+ \usecolortheme{wolverine} % way too flashy!
+    %\usefonttheme{structurebold}
+    %\usetheme{Berkeley}
+    % or ...    \setbeamercovered{transparent}
+    % or whatever (possibly just delete it)
+ 
+ }
+%\mode<handout>
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{url}
+\usepackage[T1]{fontenc}
+\newcommand{\Pair}[2]{\texttt{#1}\(\leftrightarrow\)\texttt{#2}}
+\newcommand{\pair}[2]{\texttt{#1}\(\to\)\texttt{#2}}
+
+\title[Desambiguación con MOM]{Desambiguación léxica categorial usando modelos  usant modelos ocultos de Markov}
+
+\author[Mikel  L.\ Forcada]{Mikel L.\ Forcada\inst{1}}
+
+\institute[Universitat d'Alacant]{ 
+\inst{1}Departament de Llenguatges i Sistemes Informàtics,
+Universitat d'Alacant,  E-03071 Alacant (Spain) 
+}
+
+
+\date[2015--2014]{Doctorado en Informática}
+
+
+
+\newcommand{\tu}[2]{(\texttt{``#1''},\texttt{``#2''})}
+\begin{document}
+
+% twiddling with the colors
+%\setbeamercolor{title}{fg=red!80!black} title red
+%\setbeamercolor{title}{bg=green} % title background green
+
+% \setbeamercolor{alerted text}{fg=darkblue!80!yellow}
+\setbeamercolor*{palette primary}{fg=red!60!black,bg=yellow!80!green}
+%\setbeamercolor*{palette secondary}{fg=red!70!black,bg=yellow!90!green}
+%\setbeamercolor*{palette tertiary}{bg=red!80!black,fg=yellow!50!green}
+\setbeamercolor*{palette quaternary}{fg=red,bg=yellow!60!green}
+
+% \setbeamercolor*{sidebar}{fg=darkblue,bg=orange!75!white}
+
+% \setbeamercolor*{palette sidebar primary}{fg=darkblue!10!black}
+% \setbeamercolor*{palette sidebar secondary}{fg=white}
+% \setbeamercolor*{palette sidebar tertiary}{fg=darkblue!50!black}
+% \setbeamercolor*{palette sidebar quaternary}{fg=yellow!10!orange}
+
+% \setbeamercolor*{titlelike}{parent=palette primary}
+% \setbeamercolor{frametitle}{bg=yellow!90!green}
+\setbeamercolor{frametitle right}{bg=yellow!50!green}
+
+% \setbeamercolor*{separation line}{}
+% \setbeamercolor*{fine separation line}{}
+
+
+\frame{\maketitle}
+% \begin{frame}
+% \maketitle
+% \titlepage
+% \end{frame}
+
+\begin{frame}<beamer>
+\frametitle{Índice}
+\tableofcontents
+\end{frame}
+
+\section{Definiciones}
+\begin{frame}
+\frametitle{Etiquetario}
+
+\(\Gamma\): etiquetario o conjunto de etiquetas (categorías
+  lexicas, partes de la oración, etc., más finas o más gruesas).
+
+\[\Gamma=\{\gamma_1,\gamma_2,\ldots,\gamma_{|\Gamma|}\}\]
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+\frametitle{ Observables}
+
+{
+
+{\(\Sigma\): conjunto de \emph{observables} (palabras concretas, clases
+  de ambigüedad ---conjuntos de las etiquetas asignadas a cada palabra--- o
+  cualquier representación entre estas)} 
+
+{\[\Sigma=\{\sigma_1,\sigma_2,\ldots,\sigma_{|\Sigma|}\}\]}
+
+ {Tras un cierto procesamiento, el texto es una secuencia de observables.}
+
+
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+\frametitle{ Conjunto de etiquetas}
+
+{
+{\(T:\Sigma\to 2^\Gamma\) entrega el conjunto de etiquetas \(T(\sigma)\) de un
+  observable \(\sigma\).}
+
+{Si el observable es una clase de ambigüedad, \(T\) es la función
+  identidad.}
+
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Formulación probabilística de la desambiguación}
+\begin{frame}
+\frametitle{ El problema}
+
+{
+{Tenemos un texto procesado (una secuencia de observables de longitud \( L \))
+
+ \[\mathbf{\sigma}=\sigma[1]\sigma[2]\ldots\sigma[L]\]
+
+}
+
+{y queremos conocer qué secuencia de etiquetas
+
+ \[\mathbf{\gamma}^*=\gamma^*[1]\gamma^*[2]\ldots\gamma^*[L]\]
+
+es la que mejor explica el texto.}
+
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{Formulación probabilística/1}
+
+{
+{Si pudiéramos calcular la probabilidad
+
+ \[P(\gamma[1]\gamma[2]\ldots\gamma[L]|\sigma[1]\sigma[2]\ldots\sigma[L])\]
+ 
+ de cada secuencia de etiquetas \(\gamma[1]\gamma[2]\ldots\gamma[L]\)
+ condicionada a la secuencia de observables
+ \(\sigma[1]\sigma[2]\ldots\sigma[L]\), }
+
+{y quisiéramos conocer qué secuencia de etiquetas
+ \(\mathbf{\gamma}^*=\gamma^*[1]\gamma^*[2]\ldots\gamma^*[L]\)
+es la que mejor explica el texto, podríamos elegir la más probable:
+
+\[\gamma^*[1]\ldots\gamma^*[L]=\mathrm{arg}
+ \max_{\gamma[i]\in T(\sigma[i])} P(\gamma[1]\ldots\gamma[L]|\sigma[1]\ldots\sigma[L]).\]
+}
+
+}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{ Formulación probabilística/2}
+
+{
+{Aplicando el teorema de Bayes,
+{\small
+\[
+ P(\gamma[1]\ldots\gamma[L]|\sigma[1]\ldots\sigma[L])=
+\frac{ P(\sigma[1]\ldots\sigma[L]|\gamma[1]\ldots\gamma[L])
+ P(\gamma[1]\ldots\gamma[L])} {P(\sigma[1]\ldots\sigma[L])}
+,\]
+}
+}
+
+{y, teniendo en cuenta que para un texto dado,
+  \(P(\sigma[1]\ldots\sigma[L])\) es constante, podemos escribir:
+{\small
+\[\gamma^*[1]\ldots\gamma^*[L]=\mathsf{arg}
+ \max_{\gamma[i]\in T(\sigma[i])} P(\sigma[1]\ldots\sigma[L]|\gamma[1]\ldots\gamma[L])
+ P(\gamma[1]\ldots\gamma[L])\]
+}
+}
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{ Formulación probabilística/3}
+
+
+Tenemos, por tanto, dos modelos probabilísticos:
+\begin{itemize}
+\item Un \emph{modelo léxico} 
+\[ P(\sigma[1]\ldots\sigma[L]|\gamma[1]\ldots\gamma[L]) \]
+que indica la probabilidad de una secuencia de observables dada una
+secuencia de etiquetas
+
+\item y un \emph{modelo sintáctico}
+\[P(\gamma[1]\ldots\gamma[L])\]
+que indica la probabilidad de una determinada seqüència de etiquetas
+\end{itemize}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{ Aproximaciones}
+
+{
+{\emph{Modelo léxico:} La probabilidad de cada observable sólo depende de la etiqueta correspondiente:
+\[P(\sigma[1]\ldots\sigma[L]|\gamma[1]\ldots\gamma[L])
+\approx \prod_{t=1}^L p(\sigma[t]|\gamma[t]) \]
+}
+{\emph{Modelo sintáctico:} La probabilidad de una secuencia de etiquetas se puede aproximar por un modelo de bigramas:
+
+\[P(\gamma[1]\ldots\gamma[L])\approx p(\gamma[1]|\#)\left(\prod_{t=2}^L
+p(\gamma[t]|\gamma[t-1])\right) p(\#|\gamma[L]).\]}
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Modelos ocultos de Markov per a la desambiguación}
+\begin{frame}
+\frametitle{ Modelo oculto de Markov}
+
+{
+{Un modelo oculto de Markov \(\mathcal{M}=(A,B,\pi)\) se compone de:}
+
+\begin{itemize}\itemsep 0ex
+{\item \emph{Probabilidades de transición} (matriz \(A\))
+\[a_{ij}=p(\gamma_j|\gamma_i)\]
+donde $\gamma_j$ puede ser también \(\#\) (final del texto).}
+
+{\item \emph{Probabilidades de emisión} (matriz \(B\))
+\[b_{i}(\sigma_k)=p(\sigma_k|\gamma_i)\]}
+
+{\item \emph{Probabilidades iniciales} (vector \(\mathbf{\pi}\))
+\[a_{\#i}=p(\gamma_i|\#)=\pi_i\]
+}
+\end{itemize}
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{El algoritmo de Viterbi}
+\begin{frame}
+\frametitle{ El algoritmo de Viterbi/1}
+
+{
+{
+La manera obvia (fuerza bruta) de obtener la secuencia óptima seqüència òptimaw
+  \[\gamma^*[1]\ldots\gamma^*[L]\] (calcular la probabilidad de  todas
+  las secuencias \(\gamma[1]\ldots\gamma[L]\) hasta que encontremos la más probable) es impracticable.}
+
+{Existe un algoritmo (el de Viterbi) que la calcula
+  eficientmente.} 
+
+{Lo repasaremos sin justificarlo detalladamente.}
+
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{El algoritmo de Viterbi/2}
+
+{
+{El algoritmo calcula, procesando los observables \(\sigma[t]\)
+  uno a uno,}
+\begin{itemize}
+{\item una \emph{probabilidad} \(\delta_i(t)\) para cada
+  \(\gamma_i\in\Gamma\), y }
+{\item una \emph{función de traza} \(\psi(i,t)\) para  cada
+  etiqueta \(\gamma_i\) y para cada longitud \(t\) que
+  permitirá obtener la secuencia ganadora.}
+\end{itemize}
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{ Etiquetando con Viterbi/1
+}
+{
+{\emph{Iniciación:}
+\[\delta_i(0)=\pi_i=a_{\#i}\]
+}
+{\emph{Paso a paso, de \(1\) a \(L\)}
+\[\delta_i(t)= \max_{\gamma_j\in\Gamma} \delta_j(t-1) a_{ji} b_i(\sigma[t]) \]
+\[\psi(i,t)= \mathrm{arg} \max_{j\in[1,|\Gamma|]} \delta_j(t-1) a_{ji} b_i(\sigma[t]) \]
+}
+{\emph{Terminación}
+\[\delta_\#(L+1)= \max_{\gamma_j\in\Gamma} \delta_j(L) a_{j\#} \]
+\[\psi(\#,L+1)= \mathrm{arg} \max_{j\in[1,|\Gamma|]} \delta_j(L) a_{j\#} \]
+}
+
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{ Etiquetando con Viterbi/2}
+
+{
+{La secuencia de etiquetas ganadora se calcula hacia atrás:
+\[\gamma^*[L]=\gamma_{\psi(\#,L+1)},\]
+\[\gamma^*[L-1]=\gamma_{\psi(\psi(\#,L+1),L)},\]
+\[\gamma^*[L-2]=\gamma_{\psi(\psi(\psi(\#,L+1),L),L-1)},\]
+etc.
+}
+
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{ Etiquetando con Viterbi/3}
+
+{
+{Algunas propiedades interesantes:}
+\begin{itemize}\itemsep 0ex
+{\item Los \(b_i(\sigma_k)\) tienen muchos \emph{ceros}:
+       \[ b_i(\sigma_k)=0 \mbox{ si } \gamma_i\not\in T(\sigma_k) \]
+}
+{\item La subsecuencia ganadora \(\gamma^*[t_i+1]...\gamma^*[t_f-1]
+\) entre dos palabras no homógrafas \(\sigma[t_i]\) i \(\sigma[t_f]\) (tales
+que \(|T(\sigma[t_i])|=|T(\sigma[t_f])|=1\)) es independiente del resto de la secuencia: ello permite \emph{restaurar} el algoritmo y \emph{escribir}
+la desambiguación antes de llegar al final del texto.}
+
+% {\item 
+% Si \(|T(\sigma[t_i])|=|T(\sigma[t_f])|=1\) amb \(t_i<t_f\) (mots no
+% homògrafs), la subseqüència guanyadora \(\gamma^*[t_i+1]...\gamma[t_f-1]^*
+% \) és independent de la resta
+% de la seqüència: permet \emph{restaurar} l'algorisme i \emph{escriure}
+% la desambiguació abans d'arribar al final del text.}
+\end{itemize}
+}
+\end{frame}
+\section{Estimación de los parámetros}
+\begin{frame}
+\frametitle{ Estimación de los parámetros/1}
+
+{
+{Però... de dónde vienen los parámetros (\(A\),\(B\),\(\mathbf{\pi}\))?}
+
+{Si tenemos un corpus suficientemente grande y representativo  etiquetado (desambiguado) a mano, 
+conocemos \(\sigma[t]\) i \(\gamma^*[t]\) per a tot \(t\). }
+
+{Podemos estimar las probabilidades \emph{contando} (verosimilitud màxima):
+\[ a_{ij}\approx \frac{N(\gamma^*[t]=\gamma_j|\gamma^*[t-1]=\gamma_i)}
+                     {\sum_{\gamma_k\in\Gamma} N(\gamma^*[t]=\gamma_k|\gamma^*[t-1]=\gamma_i)}  \]
+\[ b_{i}(\sigma_k)  \approx
+\frac{N(\sigma[t]=\sigma_k|\gamma^*[t]=\gamma_i)}
+     {\sum_{\sigma_l\in\Sigma} N(\sigma[t]=\sigma_l|\gamma^*[t]=\gamma_i)} \]         
+}
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{ Estimación de los parámetros/2}
+
+{
+{Puede convenir tener en cuenta la posibilidad de situaciones no vistas (por ejemplo, asumiendo que las hemos visto al menos una vez):}
+
+{\[ a_{ij}\approx \frac{1+ N(\gamma^*[t]=\gamma_j|\gamma^*[t-1]=\gamma_i)}
+                     {\sum_{\gamma_k\in\Gamma} \left(1+
+                     N(\gamma^*[t]=\gamma_k|\gamma^*[t-1]=\gamma_i)\right)
+                     }\]}
+
+
+{\[ b_{i}(\sigma_k)  \approx
+\frac{1+N(\sigma[t]=\sigma_k|\gamma^*[t]=\gamma_i)}
+     {\sum_{\sigma_l\in\Sigma} \left(1+ 
+N(\sigma[t]=\sigma_l|\gamma^*[t]=\gamma_i) \right)} \]}
+
+
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{ Estimación de los parámetros/3}
+
+{
+{Pero tener un corpus etiquetado comporta \emph{un gran esfuerzo}.}
+
+{Existe un algoritmo (el de Baum y Welch), también denominado de
+  \emph{maximitzación de la esperanza}, que permite estimar sin necesidad de un corpus etiquetat, mediante un proceso iterativo.}
+
+{No lo explicaremos aquí. Pero indicaremos una manera
+  \emph{aproximada} de obtener los parámetros (por ejemplo, para
+  refinarlos posteriormente con el algoritmo de Baum y Welch).}
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{ Estimación de los parámetros/4}
+
+{
+{\emph{Model sintàctic:} Si el corpus no está etiquetado, no
+  conocemos los
+  \(N(\gamma^*[t]=\gamma_j|\gamma^*[t-1]=\gamma_i)\), pero podemos
+  aproximarlos:}
+{
+\[
+\tilde{N}(\gamma^*[t]=\gamma_j|\gamma^*[t-1]=\gamma_i)\approx
+\]
+\[
+\approx \sum_{\sigma:\gamma_j\in\sigma} \sum_{\sigma':\gamma_i\in\sigma'}
+N(\sigma[t]=\sigma|\sigma[t-1]=\sigma') \frac{1}{|T(\sigma)|} \frac{1}{|T(\sigma')|}
+\]
+}
+{(cada vez que aparece el observable \(\sigma\) que tiene
+  \(|T(\sigma)|\) etiquetas posibles, contamos como si hubiéramos visto
+  cada etiqueta \(\frac{1}{|T(\sigma)|}\) veces)}
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+\frametitle{ Estimación de los parámetros/5}
+
+{
+{\emph{Modelo léxico:} Si el corpus no está etiquetado, no conocemos
+los  \(N(\sigma[t]=\sigma_k|\gamma^*[t]=\gamma_i)\), pero podemos aproximarlos:}
+{
+\[
+\tilde{N}(\sigma[t]=\sigma_k|\gamma^*[t-1]=\gamma_i)\approx
+N(\sigma[t]=\sigma_k) \frac{1}{|T(\sigma_k)|}
+\]
+}
+{(Igual: cada vez que aparece el observable \(\sigma\) que tiene
+  \(|T(\sigma)|\) etiquetas posibles, contamos como si hubiéramos visto cada etiqueta \(\frac{1}{|T(\sigma)|}\) veces)}
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Uso de información lingüística}
+\begin{frame}
+\frametitle{ Información lingüística}
+
+{
+{Cuando se trabaja con corpus no etiquetados puede ser conveniente
+  usar \emph{información lingüística} para hacer que algunas probabilidades de transición \(a_{ij}\) sean cero.}
+
+{Por ejemplo, en español las secuencias
+  \emph{determinante}--\emph{verbo en forma personal},
+  \emph{preposición}--\emph{verbo en forma personal}, \emph{pronombre
+    proclítico}--\emph{adjectivo} no son posibles.}
+
+{El algoritmo de Baum y Welch \emph{conserva} durante las iteraciones los ceros que se hayan introducido en la inicialización.}
+}
+\end{frame}
+
+\end{document}
