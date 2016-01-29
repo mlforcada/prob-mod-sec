@@ -1,0 +1,160 @@
+\documentclass[12pt,a4paper]{article} \usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc} \pagestyle{headings} \markboth{Suavizado de modelos de \(n\)-gramas}{Suavizado de modelos de \(n\)-gramas}
+\begin{document}
+
+\title{Suavizado de modelos de \(n\)-gramas}
+\author{Mikel L. Forcada \\
+Universitat d'Alacant \\}
+%\begin{document}
+\maketitle
+
+\section{Introducción}
+Estas notas describen técnicas de suavizado de modelos de \(n\)-gramas. Se usarán modelos de trigramas  (\(n=3\))
+durante toda la discusión.
+
+\section{La necesidad del suavizado}
+
+La manera más directa de estimar las probabilidades \(p(w_3|w_1,w_2)\) de un modelo de trigramas sería la \emph{maximización de la esperanza}, es decir, asumir que las probabilidades de los sucesos corresponden a sus frecuencias observadas.
+\begin{equation}
+  \label{eq:em}
+  p(w_3|w_1,w_2)=f(w_3|w_1,w_2)=\frac{C(w_1w_2w_3)}{C(w_1w_2)}
+\end{equation}
+donde \(f(w_3|w_1,w_2)\) es la frecuencia relativa con la que \(w_3\) se ve después de  \(w_1w_2\), y \(C(\cdot\)) es el número de veces que se ve una secuencia determinada en el corpus de entrenamiento.
+
+Pero esto no funciona. Frederic Jelinek, en su libro \emph{Statistical
+  Methods for Speech Recognition} (MIT Press, 2007), divide un corpus de patentes de  1.800.000 palabras sobre un vocabulario de 1.000  palabras en dos partes:
+un corpus de entrenamiento de 1.500.000-palabras y un corpus de \emph{test} de 300.000 palabras. Encuentra que el 23\% de los trigramas del conjunto de \emph{test} no aparecen en el conjunto de entrenamiento. La ecuación~(\ref{eq:em}) asignaría una probabilidad nula a los trigramas \(w_1w_2w_3\) no vistos, y como resultado, el modelo de trigramas asignaría una probabilidad nula a cualquier secuencia que contuviese alguno de ellos.
+
+Se necesita una estimación para los trigramas no vistos, para que tengan una probabilidad no nula. Este proceso se llama \emph{suavizado}.
+
+\section{Interpolación lineal}
+
+Una posibilidad ---no es la única\footnote{Dado que los modelos de \(n\)-gramas se usan masivamente en aplicaciones populares como la traducción automática estadística y el reconocimiento automático del habla, por nombrar sólo dos, hay una plétora de métodos de suavizado, y muchos de ellos están implementados en paquetes de \emph{software} libre/de código fuente abierto tales como IRSTLM, RandLM, o KenLM.}--- es la \emph{interpolación lineal} de frecuencias de trigramas, bigramas y unigramas:
+\begin{equation}
+  \label{eq:lininterpol}
+  p(w_3|w_1,w_2)=\lambda_3f(w_3|w_1,w_2) + \lambda_2 f(w_3|w_2) + \lambda_1f(w_3),
+\end{equation}
+donde
+\(\lambda_3+\lambda_2+\lambda_1=1\) ---lo cual es fácil de demostrar--- and
+\begin{equation}
+  f(w_3|w_1,w_2)=\frac{C(w_1w_2w_3)}{C(w_1w_2)},\label{eq:f3}
+\end{equation}
+\begin{equation}
+  \label{eq:f2}
+   f(w_3|w_2)=\frac{C(w_2w_3)}{C(w_2)},
+\end{equation}
+y
+\begin{equation}
+    f(w_3)=\frac{C(w_3)}{N},
+\end{equation}
+donde \(N\) es el tamaño del conjunto de entrenamiento.
+
+Pero, ¿cómo estimamos \(\lambda_1\),\(\lambda_2\) y \(\lambda_3\)? Una posibilidad es dividir el corpus de entrenamiento en dos partes:
+\begin{itemize}
+\item Los \emph{datos conservados} (\emph{kept data}) (normalmente llamados simplemente \emph{corpus de entrenamiento}), los cuales se usan para estimar las frecuencias relativas \(f(\cdot|\cdot)\), y
+\item Los \emph{datos apartados} (\emph{held-out data}) (normalmente llamados \emph{corpus de desarrollo} o \emph{corpus de ajuste}), los cuales se usan para estimar las \(\lambda_i\).
+\end{itemize}
+Una posible manera de hacer esto se llama \emph{interpolación borrada} (\emph{deleted interpolation}).
+
+\section{Interpolación borrada}
+
+En la  \emph{interpolación borrada}, los
+\begin{math}
+  \lambda_i
+\end{math} se estiman en cascada. La ecuación~(\ref{eq:lininterpol}) se puede escribir como sigue:
+\begin{equation}
+  \label{eq:delinter}
+  \begin{array}{rcl}
+  p(w_3|w_1,w_2)&=&\lambda_3 f(w_3|w_1,w_2) + (1-\lambda_3)p^\star(w_3|w_2);\\
+  p^\star(w_3|w_2)&=&\lambda_4f(w_3|w_2) + (1-\lambda_4)f(w_3),
+  \end{array}
+\end{equation}
+donde
+\begin{math}
+  \lambda_3
+\end{math}
+y
+\begin{math}
+  \lambda_4
+\end{math}
+no son constantes, sino realmente una función del número de veces que ocurren determinados sucesos:
+\begin{equation}
+  \lambda_4=\gamma(C(w_2)),
+\end{equation}
+\begin{equation}
+  \lambda_3=\theta(C(w_1,w_2)).
+\end{equation}
+La idea es dar mayor peso a aquellos sucesos que estan mejor representados en el corpus de entrenamiento (\emph{datos conservados}).
+
+\subsection{Forma de las funciones de suavizado}
+
+Las funciones de suavizado
+\begin{math}
+  \gamma(\cdot) 
+\end{math}
+and 
+\begin{math}
+  \theta(\cdot)
+\end{math}
+crecen con su argumento (de manera que los sucesos que están mejor representados dan lugar a coeficientes de interpolación más altos) y se definen por tramos, dividiendo el rango de variación de 
+\begin{math}
+  C(\cdot)
+\end{math}
+en tramos que se determinan experimentalmente, de manera que cada tramo tiene suficientes datos. Una discusió de la 
+ \emph{ley de Zipf} es relevante en este contexto, ya que puede ser usada para determinar estos rangos. Esta ley empírica dice que si uno toma un texto suficientemente grande, cuenta el número de veces que aparece cada palabra, y ordena la lista en orden descendente de frecuencia, la posición \(r\) of the word y su frecuencia relativa \(f_r\) siguen aproximadamente la siguiente regla: 
+\begin{equation}
+  \label{eq:zipf}
+  r f(r) \simeq K
+\end{equation}
+donde  \(K\) es una constante. Su valor en inglés está alrededor de 0,1, lo que significa que la palabra inglesa más frecuente, \emph{the}, es ressponsable del  10\% del texto. Esto también quiere decire que unas pocas palabras agrupan la mayor parte de la probabilidad. 
+
+\subsection{Procedimiento}
+El siguiente procedimiento se usa para determinar, por ejemplo, la forma de la función \(\gamma\) (y después se haría lo mismo con la función \(\theta\)). La idea es que la distribución de probabilidad de bigramas resultante \(p^\star(w_3|w_2)\) sea tan próxima como sea posible a la distribución observada en el corpus de \emph{datos apartados}. Para comparar dos distribuciones de probabilidad  \(q\) y \(r\) definidas sobre un conjunto discreto \(E\) de sucesos \(i\) se puede usar la divergencia de Kullback y Leibler,
+\begin{equation}
+  \label{eq:KL}
+  \mathrm{KL}(q,r)=\sum_{i\in E}q(i)\log\frac{q(i)}{r(i)},
+\end{equation}
+la cual es siempre positiva y es sólo nula cuando ambas distribuciones de probabilidad son idénticas. 
+
+He aquí el procedimiento:
+\begin{enumerate}
+\item Divídase el corpus de entrenamiento en \emph{datos conservados} (el verdadero \emph{corpus de entrenamiento}) y \emph{datos apartados} (o \emph{de desarrollo})
+\item Cuéntense \(C(w_3)\) y \(C(w_2,w_3)\) en los datos conservados.
+\item Determínese el conjunto de intervalos en los que se dividirá el rango de valores de  \(C(w_3)\). Denomínese  \(\mathcal{R}\) a cada uno de estos rangos.
+\item Cuéntese \(N(w_2,w_3)\) en el corpus de desarrollo (datos apartados).
+\item Finalmente, para cada rango \(\mathcal{R}\), minimícese esta la ecuación siguiente para obtener el valor correspondiente de \(\gamma_\mathcal{R}\):
+  \begin{equation}
+    \label{eq:klrank}
+    \sum_{v:N(v)\in \mathcal{R}} \sum_{w_3} N(v,w_3)\log \left[\gamma_\mathcal{R} f(w_3) + (1-\gamma_\mathcal{R})f_2(w_3|v)\right]
+  \end{equation}
+donde
+\begin{math}
+  \gamma_\mathcal{R} f(w_3) + (1-\gamma_\mathcal{R})f_2(w_3|v) = p^\star(w_3|v).
+\end{math}
+Esto equivale a minimizar la divergencia de Kullback y Leibler por tramos, para todos los rangos \(\mathcal{R}\). Se toma la derivada con respecto a \(\gamma_\mathcal{R}\) y se iguala a cero:
+\begin{equation}
+  \label{eq:klderiv}
+    \sum_{v:N(v)\in \mathcal{R}} \sum_{w_3} N(v,w_3)  \left[\gamma_\mathcal{R} + \frac{f(w_3|v)}{f(w_3)-f(w_3|v)}\right]^{-1} = 0.
+\end{equation}
+La ecuación resultante se resuelve para  \(\gamma_\mathcal{R}\) y tiene una solución única.
+\end{enumerate}
+
+\section{Suavizado aproximado sin datos apartados}
+Existen  \emph{recetas} para estimar las \(\lambda\) en la ecuación~(\ref{eq:lininterpol}) sin apartar una parte del corpus. Una de estas \emph{recetas} la dan Brants y Samuelsson\footnote{Brants, T., Samuelsson, C. (1995) ``Tagging the Teleman corpus'', Proc.\ of the 10th Nordic Conference of Computational Linguistics NODALIDA 1995}, quienes la denominan \emph{abstracción sucesiva}. Proponen 
+lo siguiente:
+\begin{equation}
+  \label{eq:bsl3}
+  \lambda_3=\frac{C(w_1,w_2)^{1/2}}{1+C(w_1,w_2)^{1/2}}
+\end{equation}
+y
+\begin{equation}
+  \label{eq:bsl4}
+  \lambda_4=\frac{C(w_2)^{1/2}}{1+C(w_2)^{1/2}}.
+\end{equation}
+Como puede verse fácilmente, cuando el contexto de un suceso está bien estimado ---por ejemplo cuando la secuencia \(w_1w_2\) se ha visto con bastante frecuencia--- el valor del coeficiente de interpolación se acerca a 1 ---por ejemplo
+\begin{math}
+  C(w_1,w_2)
+\end{math}
+es casi lo mismo que \(C(w_1,w_2)+1\).
+Esta \emph{receta} funciona bastante bien en muchas aplicaciones.
+\end{document}
