@@ -1,0 +1,267 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[spanish]{babel}
+\usepackage[latin1]{inputenc}
+\pagestyle{headings}
+%\markboth{TEPLH 1999--2000: Nota técnica 1}{TEPLH 1999--2000: Nota técnica 1}
+\markboth{Modelos prob.\ de secuencias}{Modelos prob.\ de secuencias}
+\begin{document}
+
+\section*{Introducción a los modelos estadísticos de secuencias}
+
+\noindent Rafael C.\ Carrasco, Mikel L.\ Forcada\\
+\noindent Departament de Llenguatges i Sistemes Informàtics
+\noindent Universitat d'Alacant
+
+
+% Esta hoja técnica contiene unas notas sobre modelos estadísticos de
+% secuencias que pueden ser de utilidad para los alumnos del curso
+% Técnicas Estadísticas en Procesamiento del Lenguaje y del Habla
+% (1999--2000).
+
+Estamos interesados en modelos que asignen a cada posible secuencia de
+observables ${\bf O}=O_1 O_2 \ldots O_T$ una probabilidad:
+\begin{equation}
+p : V^* \rightarrow [0,1],
+\end{equation}
+donde $V=\{v_1,\ldots,v_{|V|}\}$ es el conjunto o alfabeto de
+observables (más adelante veremos cómo se pueden extender estos
+modelos a conjuntos de observables continuos). Por descontado,
+\begin{equation}
+  \label{eq:sum}
+\sum_{{\bf O}\in V^*} p({\bf O})=1.
+\end{equation}
+Todos estos modelos tienen dos  interpretaciones:
+\begin{itemize}
+\item  como computadores de
+  probabilidades (dada una secuencia de observables, calculan la
+  probabilidad de la misma), y  
+\item como {\em generadores}, es decir, como fuentes que generan una
+  secuencia de observables de acuerdo con la distribución de
+  probabilidad correspondiente.
+\end{itemize}
+
+\subsection*{Descomposición en producto}
+
+Sin perder generalidad, podemos escribir, para cualquier secuencia de
+observables $O_1\ldots O_T$,
+\begin{equation}
+  \label{eq:descprod}
+  p(O_1,\ldots,O_T)=\prod_{t=1}^T \hat{p}(O_t|O_1\ldots O_{t-1})
+  \times \hat{p}(\$|O_1\ldots O_T)
+\end{equation}
+donde \$ es un símbolo especial que se usa para indicar el final de la
+secuencia. 
+
+El modelo de probabilidad resultante es impracticable como está
+escrito, porque necesita una tabla infinita para almacenar las
+probabilidades 
+\begin{equation}
+  \label{eq:tablinf}
+\hat{p}(O_t|O_1\ldots O_{t-1}).
+\end{equation}
+(tiene tantas entradas como posibles secuencias de elementos de $V$.)
+Existen {\em aproximaciones\/} a este modelo de probabilidad que lo convierten
+en practicable.
+
+Estudiaremos tres tipos de modelos:
+\begin{itemize}
+\item los modelos de $k$-gramas (también llamados de $n$-gramas)
+\item los autómatas finitos estocásticos deterministas 
+\item los modelos ocultos de Márkov
+\end{itemize}
+
+\subsection*{El modelo de $k$-gramas}
+
+En el modelo de $k$-gramas (también llamado de $n$-gramas), las
+probabilidades $\hat{p}$ se aproximan como sigue:
+\begin{equation}
+  \label{eq:kgram}
+  \hat{p}(O_t|O_1\ldots O_{t-1})\approx \hat{p}_k(O_t|O_{t-k+1}\ldots O_{t-1})
+\end{equation}
+donde $\hat{p}_k(O_t|O_{t-k+1}\ldots O_{t-1})$ sólo depende de los $k$
+observables involucrados, y no de la posición concreta $t$ en la que
+aparezcan; por convenio, para cualquier secuencia, $O_0=O_{-1}=\$$.
+
+El modelo resultante es practicable: tiene una tabla con $O(|V|^k)$
+entradas o {\em parámetros}, donde $|V|$ es el tamaño del conjunto de
+observables posibles. Los parámetros del modelo tienen una
+interpretación sencilla: la probabilidad de aparición de un observable
+determinado en la secuencia sólo depende de los últimos $k-1$
+observables que han aparecido; los observables más antiguos de la
+secuencia no cuentan. En la interpretación del modelo de $k$-gramas
+como generador, la fuente de observables tiene una memoria finita que
+recuerda los últimos $k-1$ símbolos, los cuales determinan la
+probabilidad de que el siguiente observable que se emita sea un
+elemento concreto de $V$.
+
+La estimación de los parámetros de un modelo de $k$-gramas a partir de
+una muestra de secuencias de observables es sencillo si lo que se
+pretende es dar la {\em verosimilitud máxima\/} a esta muestra: es tan
+sencillo como elegir
+\begin{equation}
+  \label{eq:kgramML}
+  \hat{p}_k(v|v_1\ldots v_{k-1}) = \frac{n(v_1 v_2 \ldots v_{k-1}
+  v)}{\sum_{v'\in V} n(v_1 v_2 \ldots v_{k-1} v')}
+\end{equation}
+donde $n()$ representa el número de veces que se ha observado su
+argumento en la muestra; es decir, identificando la probabilidad con
+la frecuencia relativa observada para cada sucesor. Esta manera de
+estimar los parámetros de un modelo de $k$-gramas tiene el problema de
+que si una secuencia de $k$ observables (un $k$-grama) no ha sido
+nunca observada, el modelo asignará una probabilidad nula a cualquier
+secuencia de observables que la contenga. Más adelante veremos
+remedios a este problema.
+
+\subsection*{Los autómatas finitos estocásticos deterministas}
+
+Otra posible manera de convertir en practicable un modelo como el de
+la ecuación~(\ref{eq:descprod}) consiste en dividir el conjunto
+infinito de posibles historias $O_1\ldots O_{t-1}$ en un número
+finito de clases que tienen las mismas probabilidades para sus
+sucesores ($O_t$). En este modelo, se asigna a cada
+posible secuencia de $V^*$ un {\em estado}
+\begin{equation}
+  \label{eq:assignstate}
+  F(O_1\ldots O_t)=q_t
+\end{equation}
+de un conjunto finito ($q_t\in S$)
+y las probabilidades se aproximan de acuerdo con esta partición:
+\begin{equation}
+  \label{eq:probpart}
+  \hat{p}(O_t|O_1\ldots O_{t-1})\approx \hat{p}_S(O_t|q_{t-1}).
+\end{equation}
+El problema de la tabla infinita no estaría resuelta si no
+establecemos un mecanismo para calcular qué estado $q_t$ se debe
+asignar a una secuencia de observables $O_1\ldots O_t$. El mecanismo
+usado en los autómatas finitos estocásticos deterministas (AFED) es
+recursivo:
+\begin{equation}
+\begin{array}{rcl}
+q_0&=& S_I\\
+q_t&=& \delta(q_{t-1},O_t)
+\end{array}
+\end{equation}
+donde $S_I\in S$ es el {\em estado inicial\/} del AFED y corresponde
+(aunque pueda ser que no sólo) a la secuencia de cero observables, y
+$\delta:S\times V\rightarrow S$ es la {\em función de transición\/} de estado
+del AFED.
+
+Formalmente, un AFED es una quíntupla $M=(S,V,\delta,S_I,\hat{p}_s)$,
+donde $S$ es el conjunto de estados, $V$ el alfabeto de observables,
+$S_I\in S$ el estado inicial, $\delta$ la función de transición de
+estado y 
+\begin{equation}
+  \label{eq:hatpis}
+  \hat{p}_S: S \times V \rightarrow [0,1]
+\end{equation}
+la función (ec.~\ref{eq:probpart}) que asigna las probabilidades de
+cada sucesor en función del estado. Denominaremos $N=|S|$ al número de
+estados del AFED.
+
+Como generadores, los AFED tienen una memoria finita (el estado) que
+recuerda la información que necesita sobre los observables que se han
+emitido hasta el momento para decidir las probabilidades de cada uno
+de los siguientes observable que se pueden emitir.
+
+Existen métodos para aprender AFED a partir de muestras; se explicarán
+más adelante en el curso.
+
+Los modelos de $k$-gramas son efectivamente una subclase de los AFED
+en los cuales se puede decir que  los estados están etiquetados con
+$k-1$ símbolos.
+
+\subsection*{Los modelos de Márkov ocultos}
+
+El estado en el que se encuentre un AFED (o, en particular, un modelo
+de $k$-gramas) en el instante $t$, $q_t$ está perfectamente
+determinado por la secuencia de observables $O_1\ldots O_{t}$ que lo
+ha llevado a ese estado (mediante la función de transición). Un modelo
+de Márkov oculto (MMO) funciona de manera diferente ya que cambia de
+estado estocásticamente y autónomamente: la probabilidad de estar en
+un estado determinado en el instante $t$ depende del estado en el que
+se encontrase en el instante $t-1$, pero no explícitamente de los
+observables emitidos hasta el momento.  Se puede demostrar que un
+modelo de Márkov oculto también es un caso particular de la
+ec.~\ref{eq:descprod}.
+
+Formalmente, un modelo de Márkov oculto es
+\begin{equation}
+  \label{eq:MMO}
+  \lambda=(S,V,A,B,\pi)
+\end{equation}
+donde
+\begin{itemize}
+\item $S=\{S_1,S_2,\ldots , S_N\}$ es un conjunto finito de estados,
+con $N$ es el número de estados;
+\item $V=\{v_1,v_2, \ldots, v_M\}$ el conjunto de observables, con $M$
+  el número de símbolos;
+\item $A=\{a_{ij}\}$ la matriz de coeficientes de transición de estado
+\begin{equation}
+  \label{eq:aij}
+  a_{ij}=P(q_t=S_j|q_{t-1}=S_i),\;\; 1\le i,j \le N,
+\end{equation}
+que indica la probabilidad de que el MMO se encuentre en el instante
+$t$ en el estado $q_t=S_j$ si se encontraba en el instante $t-1$ en el
+estado $q_{t-1}=S_i$ y es tal que
+\begin{equation}
+  \label{eq:sumaij}
+  \sum_{j=1}^N a_{ij}=1;
+\end{equation}
+\item $B=\{b_j(k)\}$ la distribución de probabilidad de los
+  observables en el estado $j$
+  \begin{equation}
+    \label{eq:bjk}
+    b_j(k)=P(O_{t+1}=v_k | q_t = S_j),\;\; 1\le j\le N,\; 1\le k\le M;
+  \end{equation}
+\item $\pi=\{\pi_i\}$ es un vector de probabilidades en el cual
+  \begin{equation}
+    \label{eq:pii}
+    \pi_i=P(q_0=S_i)
+  \end{equation}
+representa la probabilidad de que el MMO empiece en el estado $S_i$.
+\end{itemize}
+
+¿Cómo genera un MMO una secuencia de observables? 
+\begin{itemize}
+\item Se elige el estado inicial $q_0=S_i$ de acuerdo con la
+  distribución $\pi$.
+\item Se hace $t=0$.
+\item \label{it:again} Se elige $O_{t+1}=v_k$ con la probabilidad
+  $b_i(k)$ donde $i$ es el índice del estado $q_t$.
+\item Se hace $t=t+1$
+\item Se cambia a un nuevo estado $q_t=S_j$ de acuerdo con $A$.
+\item Si $t=T$ hemos acabado\footnote{Otro posible criterio de parada
+    es si el último observable emitido es el símbolo de final de
+    secuencia $\$$}. En otro caso, se va al paso~\ref{it:again}.
+\end{itemize}
+Como veremos, aunque los estados de $S$ estén ocultos, en muchas aplicaciones
+se les asigna un significado.
+
+Los tres problemas básicos de los MMO son:
+\begin{enumerate}
+\item Dada la secuencia de observables ${\bf O}=O_1 O_2 \ldots O_T$ y
+  un modelo $\lambda=(S,V,A,B,\pi)$, ¿cómo calculamos de manera
+  eficiente la probabilidad de esta secuencia dado el modelo? 
+\item Dada la secuencia de observables ${\bf O}=O_1 O_2 \ldots O_T$ y
+  un modelo $\lambda$, ¿cómo elegimos la secuencia de estados ocultos
+  ${\bf Q}=q_0 q_1 \ldots q_{T-1}$ que explica ``mejor'' la secuencia
+  de observables?
+\item ¿Cómo ajustamos los parámetros del modelo ($A$, $B$, $\lambda$)
+  para maximizar la probabilidad $P({\bf O}|\lambda)$ de que una
+  secuencia de observables haya sido producida por el mismo?
+\end{enumerate}
+En próximas sesiones del curso estudiaremos estos tres problemas
+básicos siguiendo el artículo de Rabiner, L.R. ``A Tutorial on Hidden
+Markov Models and Selected Applications in Speech Recognition'' ({\em
+  Proceedings of the IEEE} {\bf 77}:2, 257--286), que usa una notación
+muy similar a la usada en estas notas.
+
+
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
+\end{document}
