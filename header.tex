@@ -1,0 +1,78 @@
+\documentclass[handout]{beamer}
+%\documentclass{beamer}
+
+\usepackage{etex}
+\usepackage{svn-multi}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+
+\mode<presentation>
+{
+  \usetheme{Madrid}       % intente Darmstadt, Madrid, Warsaw, ...
+%  \usecolortheme{default} % intente albatross, beaver, crane, ...
+%  \usefonttheme{default}  % intente serif, structurebold, ...
+%  \setbeamertemplate{navigation symbols}{}
+%  \setbeamertemplate{caption}[numbered]
+%  \usecolortheme[named=Plum]{structure}
+%  \setbeamercovered{transparent}
+}
+
+\usepackage{pgfpages}
+%\pgfpagesuselayout{4 on 1}[a4paper,landscape, border shrink=5mm]
+%\pgfpagesuselayout{2 on 1}[a4paper,border shrink=5mm]
+%\pgfpagesuselayout{}[a4paper,border shrink=5mm]
+
+\usepackage{amsfonts}
+%\spanishdecimal{.}
+
+\usepackage[final]{listings}
+\lstset{
+  language=c++,
+  basicstyle=\ttfamily\scriptsize,
+  breaklines=true,
+%  breakindent=0pt,
+  numbers=left,
+  numbersep=5pt,
+  numberstyle=\tiny, 
+  keywordstyle=\color{blue}\textbf,
+  commentstyle=\color{brown}\textit,
+  stringstyle=\color{red},
+  extendedchars=true,
+  keepspaces=true,
+  showtabs=true,
+  tabsize=2,
+  escapeinside={@}{@},
+  columns=flexible,
+  aboveskip=0ex,
+  belowskip=0ex,
+}
+
+%\deftranslation[to=spanish]{Definition}{Definición}
+%\deftranslation[to=spanish]{Example}{Ejemplo}
+
+%\setbeameroption{show notes}
+
+\DeclareMathOperator*{\argmin}{\mathrm{arg\,min}}
+\DeclareMathOperator*{\argmax}{\mathrm{arg\,max}}
+
+%--------------------------------------------------------------------
+
+\title[Modelos probabilísticos de secuencias] {Modelos probabilísticos de secuencias}
+
+\institute[Universitat d'Alacant] {
+  Dept. Llenguatges i Sistemes Informàtics\\
+  Universitat d'Alacant\\
+}
+
+\author[Mikel Forcada]{
+  Mikel L. Forcada
+}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{Outline}
+    \tableofcontents[currentsection,currentsubsection]
+  \end{frame}
+}
