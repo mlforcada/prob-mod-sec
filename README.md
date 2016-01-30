@@ -5,6 +5,11 @@ Este repositorio contiene materiales que se usarán como una introducción a los
 
 El hilo principal de lectura lo da la presentación "mod-prob-sec.tex", y desde allá se indica qué partes se deben leer de los documentos restantes.
 
+Para generar los PDFs en una instalación razonable de LaTeX sobre un sistema GNU/Linux o similar:
+
+$ git clone https://github.com/mlforcada/prob-mod-sec
+$ make
+
 Mikel L. Forcada
 
 Nota: algunos materiales tienen también a Rafael C. Carrasco como coautor.
