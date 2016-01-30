@@ -36,7 +36,7 @@
 
 \end{itemize}
 \end{frame}
-
+\section{Aplicaciones}
 \begin{frame}
   \frametitle{Aplicaciones de los modelos probabilisticos de secuencias/1}
 
@@ -71,8 +71,8 @@ Pronombre	&¿verbo o sustantivo? &determinante &¿verbo o substantivo?\\
    \end{tabular}
 \end{itemize}
 
-
 \end{frame}
+\section{Preliminares}
 \begin{frame}
   \frametitle{Generalidades}
   \begin{itemize}
@@ -101,12 +101,10 @@ En este bloque estudiaremos dos tipos de modelos:
   \item  Los modelos de \(n\)-gramas, y
   \item los modelos ocultos de Markov.
   \end{itemize}
-[Más detalles sobre estos dos tipos de modelos se pueden encontrar en
-las secciones correspondientes del documento auxiliar \emph{Introducción a los modelos probabilísticos de
-  secuencias}, \url{mod-prob-sec-n1.pdf}]
 
 \end{frame}
 
+\section{Descomposición en producto}
 \begin{frame}
   \frametitle{Aproximación factible de \(p(\cdot)\)/1}
   \begin{itemize}
@@ -130,6 +128,7 @@ donde \(\$\) es un indicador de final de secuencia.
   \end{itemize}
 \end{frame}
 
+\section{Modelos de \(n\)-gramas}
 \begin{frame}
   \frametitle{Aproximación de memoria finita: modelos de \(n\)-gramas /2}
   \begin{itemize}
@@ -171,9 +170,16 @@ donde \(\$\) es un indicador de final de secuencia.
  && \times  p(\mbox{home}|\mbox{book at}) \times p(\$|\mbox{at home}).
 \end{array}
 \]
-\item Un cálculo similar de \(p(\mbox{saw I at home the book})\) daría una probabilidad más baja, indicando que esta oración es menos gramatical que la anterior.
+\item El cálculo de \(p(\mbox{saw I at home the book})\) daría una probabilidad más baja: la  oración es menos gramatical que la anterior.
 \item Otro ejemplo: en un sistema de reconocimiento automático del habla, el modelo asignaría una probabilidad más alta a \emph{sex and violence on TV} que a \emph{sax and violins on TV} (que suena extremadamente parecida).
+
+
 \end{itemize}
+  \begin{block}{Tarea}
+    Estudiar hasta la sección \emph{El modelo de \(k\)-gramas}
+    del documento auxiliar \emph{Introducción a los modelos
+      probabilísticos de secuencias}, \url{mod-prob-sec-n1.pdf}
+  \end{block}
 \end{frame}
 
 \begin{frame}
@@ -193,7 +199,7 @@ p(\mbox{book}|\mbox{saw the})=\frac{n(\mbox{saw the book})}{n(\mbox{saw the book
 
 
 \begin{frame}
-  \frametitle{Aproximación de memoria finita: modelos de \(n\)-gramas /5} 
+\frametitle{Aproximación de memoria finita: modelos de \(n\)-gramas /5} 
 El problema de los eventos no vistos:
 \begin{itemize}
 \item Si la probabilidad de una oración se calcula a partir de frecuencias relativas\ldots
@@ -203,9 +209,20 @@ El problema de los eventos no vistos:
 \item Se debe buscar alguna manera de asignar una probabilidad no nula a los trigramas no vistos: esto se denomina \emph{suavizado}.
   \begin{itemize}
   \item Se trata de quitar un poco de probabilidad a los trigramas vistos y repartirlo entre los no vistos.
-  \item El documento \url{mod-prob-sec-n2.pdf} describe en detalle dos técnicas de suavizado.
   \end{itemize}
 \end{itemize}
+  \begin{block}{Tarea}
+    Estudiar las secciones 1, 2, 3 y 5 
+    del documento auxiliar \emph{Suavizado de modelos de \(n\)-gramas}, \url{mod-prob-sec-n2.pdf}
+  \end{block}
+\end{frame}
+
+\section{Modelos ocultos de Markov}
+\begin{frame}
+  \frametitle{El problema de la desambiguación léxica}
+Usaremos el problema de la desambiguación léxica o \emph{part-of-speech tagging} para ilustrar los modelos ocultos de Markov.
+
+[cont.]
 \end{frame}
 
 
@@ -221,12 +238,7 @@ El problema de los eventos no vistos:
 
 
 
-Text to translate and add:
 
-
-Hidden Markov models (HMM)
-
-[...]
 
 Hidden Markov models for part-of-speech tagging
 
