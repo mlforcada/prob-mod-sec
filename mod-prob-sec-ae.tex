@@ -1,0 +1,175 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\begin{document}
+ 
+\title{Modelos probabilísticos de secuencias: autoevaluación}
+\author{Mikel L. Forcada \\
+Universitat d'Alacant \\}
+
+\maketitle
+
+Aquí tienes una serie de cuestiones que te ayudarán a evaluar si has
+comprendido los conceptos básicos del bloque \emph{Modelos
+  probabilísticos de secuencias: autoevaluación}. Si no te ves capaz
+de resolver alguna de las preguntas:
+\begin{enumerate}
+\item Repasa la parte correspondiente de los materiales.
+\item Si aún tienes dudas, no dudes en ponerte en contacto con el prof. Mikel L. Forcada.
+\end{enumerate}
+Las preguntas marcadas con (*) tienen un grado mayor de dificultad.
+
+\subsection*{Preguntas}
+\begin{enumerate}
+
+
+\item Para convertir el problema de asignar una probabilidad a una secuencia de palabras en un problema factible, debemos\ldots
+  \begin{enumerate}
+  \item \ldots descomponerlo en un producto de probabilidades
+    condicionadas, una por palabra.
+  \item \ldots descomponerlo en un producto de probabilidades
+    condicionadas, una por palabra, y aproximar cada una de estas
+    probabilidades asumiendo que ya no dependen de todos los detalles
+    de la secuencia de palabras anterior.
+  \item \ldots elegir un modelo de \(n\) gramas cuyo orden \(n\) sea igual o mayor a la longitud de la oración.
+
+  \end{enumerate}
+\item En un modelo probabilístico de \(n\)-gramas,
+  ¿cuántas palabras anteriores se tienen en cuenta como historia para
+  determinar la probabilidad condicionada de una determinada palabra?
+  \begin{enumerate}
+  \item \(n-1\)
+  \item \(n\)
+  \item \(n+1\)
+  \end{enumerate}
+
+\item Si se reordenan las palabras de una frase, y se usa un modelo de \(n\)-gramas para asignar la probabilidad\ldots
+  \begin{enumerate}
+  \item La probabilidad total de la frase no cambia al reordenar las palabras.
+  \item La probabilidad total de la frase cambia en general al reordenar las palabras.
+  \item La probabilidad total de la frase cambia para modelos con \(n>1\).
+  \end{enumerate}
+
+\item Tenemos dos frases \(x\)
+  e \(y\)
+  que contienen la palabra \emph{casa} y calculamos su probabilidad
+  con un modelo de \(n\)-gramas con \(n>1\).
+  Ahora cambiamos la palabra \emph{casa} por la palabra \emph{finca} y
+  volvemos a calcular la probabilidad de las nuevas frases \(x'\)
+  e \(y'\). ¿Cuál de las siguientes afirmaciones es cierta?
+  \begin{enumerate}
+  \item Se cumple siempre que \(\frac{p(x)}{p(y)}=\frac{p(x')}{p(y')}\), sean cuales sean \(x\) e \(y\).
+  \item Sólo se cumple que \(\frac{p(x)}{p(y)}=\frac{p(x')}{p(y')}\)`
+    si en las dos frases \(x\)
+    e \(y\)
+    la palabra \emph{casa} va precedida por las mismas \(n-1\)
+    palabras y seguida por las mismas \(n-1\) palabras.
+  \item Nunca puede darse que \(\frac{p(x)}{p(y)}=\frac{p(x')}{p(y')}\).
+  \end{enumerate}
+
+\item La probabilidad asignada por un modelo de \(n\)-gramas a una oración\ldots
+  \begin{enumerate}
+  \item \ldots aumenta con la longitud de la misma.
+  \item \ldots disminuye con la longitud de la misma.
+  \item \ldots puede aumentar o disminuir con la longitud de la misma.
+  \end{enumerate}
+
+\item ¿Cómo se evita que un modelo de \(n\)-gramas asigne una probabilidad nula a cualquier secuencia de longitud más larga que \(n\) que contiene un \(n\)-grama que no ha sido visto durante el entrenamiento?
+  \begin{enumerate}
+  \item No se puede evitar.
+  \item Aproximando la probabilidad de cada \(n\)-grama
+    mediante una combinación lineal de las frecuencias relativas
+    observadas de \(n\)-gramas y de \(k\)-gramas con \(k<n\).
+  \item Usando las frecuencias relativas observadas en el corpus en
+    lugar de las probabilidades.
+  \end{enumerate}
+
+\item ¿Cuál de las tres fórmulas siguientes es el estimador de máxima
+  verosimilitud de \(p(c|ab)\)
+  en un modelo de trigramas? (\(n(x)\)
+  es el número de veces que se ha visto la secuencia \(x\))
+  \begin{enumerate}
+  \item \(\frac{n(abc)}{n(ab)}\)
+  \item \(\frac{n(cab)}{n(ab)}\) 
+  \item \(\frac{n(c)}{n(ab)}\)
+  \end{enumerate}
+
+\item ¿Cuántos parametros tiene (en el caso peor de tener que
+  guardarlos todos) un modelo de \(n\)-gramas sobre un vocabulario \(V\)?
+  \begin{enumerate}
+  \item \(|V|^n\)
+  \item \(n^{|V|}\)
+  \item \(|V|^{n+1}\)
+  \end{enumerate}
+
+
+\item ¿Cuántos parámetros (en el caso peor de guardarlos todos) tiene  un modelo de Markov oculto si su conjunto de observables es \(V\) y su conjunto de estados es \(Q\)? 
+  \begin{enumerate}
+  \item \(|V|(|Q|+|V|)+|Q|\)
+  \item \(|Q|(|Q|+|V|+1)\)
+  \item \(|V|^{(n)}|Q|\)
+  \end{enumerate}
+
+\item ¿Es posible entrenar un modelo oculto de Markov para la desambiguación léxica categorial sin un corpus etiquetado manualmente?
+  \begin{enumerate}
+  \item Sí, pero se obtienen peores resultados.
+  \item No. Siempre hace falta un corpus etiquetado.
+  \item Sí, pero sólo si el modelo oculto de Markov usa clases de ambigüedad como observables.
+  \end{enumerate}
+
+\item (*) Cuando se utiliza un modelo de Markov oculto para la desambiguación léxica categorial, las restricciones lingüísticas pueden codificarse como probabilidades cero\ldots
+  \begin{enumerate}
+  \item\ldots sólo en la matriz de probabilidades de transición \(A\).
+  \item\ldots sólo en la matriz de probabilidades de emisión  \(B\).
+  \item \ldots tanto en la matriz de probabilidades de transición \(A\) como en la de probabilidades de emisión \(B\).
+  \end{enumerate}
+
+\item Cuando se utiliza un modelo oculto de Markov para la desambiguación léxica categorial, ¿cuál de estas afirmaciones es cierta?
+  \begin{enumerate}
+  \item Los estados representan etiquetas de categoría léxica tales
+    como \emph{sustantivo plural}, \emph{adjetivo},
+    \emph{preposición}, etc., y los observables representan las
+    palabras que se encuentran en el texto o clases de palabras tales
+    como conjuntos de palabras que comparten el mismo tipo de
+    ambigüedad.
+  \item Los estados representan palabras que se encuentran en el texto
+    o clases de palabras tales como conjuntos de palabras que
+    comparten el mismo tipo de ambigüedad y los observables representan
+    etiquetas de categoría léxica,  tales como \emph{sustantivo plural}, \emph{adjetivo},
+    \emph{preposición}, etc.
+  \item Los estados representan clases de ambigüedad, es decir,
+    conjuntos de categorías léxicas.
+  \end{enumerate}
+
+
+\item Considerad la tarea de desambiguación léxica categorial. Si un
+  modelo oculto de Markov en el que las probabilidades de las matrices
+  \(A\)
+  y \(B\)
+  son las frecuencias observadas en un corpus etiquetado produce una
+  probabilidad cero para una oración, esto es \ldots
+  \begin{enumerate}
+  \item \ldots porque hay una secuencia de dos palabras que nunca ha
+    sido observada en el corpus etiquetado.  
+  \item \ldots porque hay una secuencia de dos etiquetas que nunca se ha
+    asignado a una secuencia de dos palabras en el corpus etiquetado.
+  \item \ldots simplemente imposible.
+  \end{enumerate}
+
+\item Di cuál de estas tres afirmaciones es la falsa:
+  \begin{enumerate}
+  \item En un modelo de traducción automática, dada una oración, los
+    modelos de \(n\)-gramas
+    se pueden usar para asignar una puntuación o mérito a cada una de
+    las hipótesis de traducción, y usar esta puntuación para elegir la
+    mejor.
+  \item Los modelos de \(n\)-gramas
+    establecen relaciones entre secuencias de observables y secuencias
+    de estados ocultos.
+  \item En un modelo oculto de Markov, la secuencia de estados se
+    modela como un modelo de \(n\)-gramas (normalmente con \(n=2\).
+  \end{enumerate}
+\end{enumerate}
+
+
+\end{document}

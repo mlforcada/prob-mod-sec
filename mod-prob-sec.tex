@@ -219,12 +219,83 @@ El problema de los eventos no vistos:
 
 \section{Modelos ocultos de Markov}
 \begin{frame}
-  \frametitle{El problema de la desambiguación léxica}
-Usaremos el problema de la desambiguación léxica o \emph{part-of-speech tagging} para ilustrar los modelos ocultos de Markov.
+  \frametitle{El problema de la desambiguación léxica /1}
+Usaremos el problema de la desambiguación léxica o \emph{part-of-speech tagging} para motivar los modelos ocultos de Markov.
 
-[cont.]
+\begin{itemize}
+\item Se trata de asignar una categoría a cada palabra con más de una
+  categoria de la frase :
+
+  \begin{center}
+    \begin{tabular}{rl}
+      \emph{I} & {PRN} \\
+      \emph{saw} & {V,N}\\
+      \emph{the} & {DET}\\
+      \emph{book} & {V,N}\\
+      \emph{at} & {PRP}\\
+      \emph{home} & {N, ADV}\\
+    \end{tabular}
+  \end{center}
+
+\item Es decir, se decide qué secuencia de categorías (oculta)
+  corresponde a la secuencia de palabras (observable) dada.
+\end{itemize}
 \end{frame}
 
+\begin{frame}
+  \frametitle{El problema de la desambiguación léxica /2}
+De las \(1\times 2\times 1\times 2 \times 1 \times 2 = 8\) posibles secuencias de categorías,
+\begin{enumerate}
+\item  PRN V DET V PRP N
+\item PRN N DET V PRP N
+\item \textbf{PRN V DET N PRP N}
+\item PRN V DET V PRP N
+\item PRN V DET V PRP ADV
+\item PRN N DET V PRP ADV
+\item PRN V DET N PRP ADV
+\item PRN V DET V PRP ADV
+\end{enumerate}
+la que está en negrita debería ser la ganadora.\footnote{A veces las etiquetas pueden ser más finas. Por ejemplo, \emph{training} puede ser sólo \textsf{VBG} (verbo en \emph{-ing}) o ser clasificado como gerundio (\emph{I was training}, \textsf{VB.GER}), participio presente (\emph{The training students}, \textsf{VB.PAP}) o un nombre verbal (\emph{The training was hard}, \textsf{VB.N}).}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Modelos ocultos de Markov}
+
+Las últimas dos tareas del bloque son:
+
+\begin{block}{Tarea}
+  Estudiar el apartado \emph{Los modelos de Márkov ocultos} del del
+  documento auxiliar \emph{Introducción a los modelos probabilísticos
+    de secuencias}, \url{mod-prob-sec-n1.pdf} (explicación básica de lo que son los modelos ocultos de Markov).
+\end{block}
+
+\begin{block}{Tarea}
+Estudiar las transparencias \emph{Desambiguación léxica categorial usando modelos ocultos de Markov}, \url{mod-prob-sec-t1.pdf} (aplicación de los modelos ocultos de Markov al problema de la desambiguación léxica categorial).
+\end{block}
+
+
+
+  
+\end{frame}
+
+\begin{frame}
+\frametitle{Autoevaluación}
+
+\begin{block}{Autoevaluación}
+  El documento \url{mod-prob-sec-t1.pdf} contiene una serie de
+  cuestiones que te ayudarán a evaluar si has comprendido los
+  conceptos básicos del bloque. Si no te ves capaz de resolver alguna
+  de las preguntas:
+\begin{enumerate}
+\item Repasa la parte correspondiente.
+\item Si aún tienes dudas, no dudes en ponerte en contacto con el Prof.\ Mikel L.\ Forcada
+\end{enumerate}
+\end{block}
+
+  
+\end{frame}
 
 \end{document}
 
@@ -240,31 +311,9 @@ Usaremos el problema de la desambiguación léxica o \emph{part-of-speech taggin
 
 
 
-Hidden Markov models for part-of-speech tagging
 
-The part-of-speech tagging (also “homograph-resolution”) problem: assign a category to each homograph in a sentence :
 
-I {PRN}
-saw {V,N}
-the {DET}
-book {V,N}
-at {PRP}
-home {N, ADV}
 
-Of the 8 possible part-of-speech sequences:
-
-PRN V DET V PRP N
-PRN N DET V PRP N
-PRN V DET N PRP N
-PRN V DET V PRP N
-PRN V DET V PRP ADV 
-PRN N DET V PRP ADV
-PRN V DET N PRP ADV
-PRN V DET V PRP ADV
-
-The one in bold should be the winner.
-
-Sometimes the tags could be finer or coarser. For instance “training” could be just VBG (verb in “-ing”) or be classified as a gerund (“I was training” VB.GER), a present participle (“The training students”, VB.PAP) or a verbal noun (“The training was hard”, VB.N).
 
 On the three ways of training a HMM for part-of-speech tagging:
 
